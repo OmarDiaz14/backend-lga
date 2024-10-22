@@ -116,15 +116,11 @@ WSGI_APPLICATION = 'lga.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+
 DATABASES = {
-     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'test14',
-        'USER': 'postgres',
-        'PASSWORD': 'admin',
-        'HOST': 'localhost',
-        'PORT':'5432',
-    }
+    'default': dj_database_url.config (
+        default='postgresql://admin:4ajM1whmAzkvRYs84krpFWJekbPAIz2N@dpg-csc0e3ogph6c73ej5r90-a.oregon-postgres.render.com/lga14',
+        conn_max_age=600)
 }
 
 
