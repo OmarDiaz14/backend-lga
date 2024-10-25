@@ -8,8 +8,6 @@ class GuiaDocu(models.Model):
     descripcion = models.CharField(max_length=100, blank=True, null=True)
     volumen = models.IntegerField()
     ubicacion_fisica = models.CharField(max_length=100)
-    serie = models.ForeignKey('cuadro.Series', on_delete=models.CASCADE,blank= False, null= True)
-    seccion = models.ForeignKey('cuadro.Seccion', on_delete=models.CASCADE,blank=  False, null= True)
     num_expediente = models.ForeignKey('portada.portada', on_delete=models.CASCADE, blank= False, null= True)
 
     @property
@@ -26,6 +24,19 @@ class GuiaDocu(models.Model):
             return self.num_expediente.fecha_cierre
         else:
             return None
+    
 
+    @property
+    def seccion(self):
+        if self.num_expediente:
+            return self.num_expediente.seccion.id_seccion 
+        else:
+            return None
 
+    @property
+    def serie(self):
+        if self.num_expediente:
+            return self.num_expediente.serie.serie
+        else:
+            return None
     
