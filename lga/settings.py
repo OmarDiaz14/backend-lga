@@ -56,7 +56,8 @@ INSTALLED_APPS = [
     'catalogo',
     'portada',
     'guia',
-    'inventario'
+    'inventario',
+    'uploadpdf'
     
 
 ]
@@ -118,10 +119,17 @@ WSGI_APPLICATION = 'lga.wsgi.application'
 
 
 DATABASES = {
-    'default': dj_database_url.config (
-        default='postgresql://admin:4ajM1whmAzkvRYs84krpFWJekbPAIz2N@dpg-csc0e3ogph6c73ej5r90-a.oregon-postgres.render.com/lga14',
-        conn_max_age=600)
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'lga_produc',
+        'USER': 'team',
+        'PASSWORD': '@pwdlga2024',
+        'HOST': '52.118.210.246',
+        'PORT': '5432',
+    }
 }
+
+
 
 
 # Password validation

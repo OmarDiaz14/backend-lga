@@ -26,7 +26,8 @@ urlpatterns = [
     path('users',include('user.urls')),
     path ('portada/', include('portada.urls')),
     path('guia_docu/', include('guia.urls')),
-    path('inventario/', include('inventario.urls'))
+    path('inventario/', include('inventario.urls')),
+    path('documento/', include('uploadpdf.urls'))
 ]
 
 
