@@ -28,9 +28,12 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='your secret key') #Es esta es
 
 # SECURITY WARNING: don't run with debug turned on in production!
 #DEBUG = True #por que no esta en ambiente de desarrollo y si no esta en ambiente de desarrollo todos los pueden ver 
-DEBUG = 'RENDER' not in os.environ
+ALLOWED_HOSTS = ['169.47.93.83']
+DEBUG = False
 
-ALLOWED_HOSTS = []
+
+
+
 
 RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
 if RENDER_EXTERNAL_HOSTNAME:
