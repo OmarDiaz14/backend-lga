@@ -11,7 +11,6 @@ class Seccion(models.Model):
     
 
 class Series(models.Model):
-    id_serie = models.CharField(max_length=100)
     serie = models.CharField(max_length=150, primary_key=True)
     codigo_serie= models.TextField()
     descripcion = models.TextField()
@@ -23,4 +22,5 @@ class SubSerie(models.Model):
     SubSerie = models.CharField(max_length=150,primary_key=True)
     descripcion = models.TextField()
     serie = models.ForeignKey('Series', on_delete=models.CASCADE,blank= True, null= True)
+    
     

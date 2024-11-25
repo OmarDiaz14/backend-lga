@@ -13,9 +13,6 @@ class valores_docu (models.Model):
     id_valores = models.AutoField (primary_key= True )
     valores = models.CharField(max_length= 100, null= False)
 
-
-
-
 class Catalogo(models.Model):
     id_catalogo = models.AutoField(primary_key= True)
     catalogo = models.CharField(max_length=50 )
@@ -27,7 +24,7 @@ class Catalogo(models.Model):
     valores_documentales = models.ForeignKey('valores_docu', models.DO_NOTHING, null= False)
     id_seccion = models.ForeignKey('cuadro.Seccion', on_delete=models.CASCADE, blank= False, null= True)
     id_serie = models.ForeignKey('cuadro.Series', on_delete=models.CASCADE,blank= False, null= True)
-    id_subserie = models.ForeignKey('cuadro.SubSerie', on_delete=models.CASCADE,blank= True, null= True)
+    Subserie = models.ForeignKey('cuadro.SubSerie', on_delete=models.CASCADE, blank=True, null=True)
 
 
 
