@@ -10,8 +10,8 @@ class GuiaSerializer(serializers.ModelSerializer):
         fields = ['id_guia', 'descripcion', 'volumen', 'ubicacion_fisica',
                   'serie', 'seccion','num_expediente', 'fecha_inicio', 'fecha_fin' ]
     
-    serie = serializers.PrimaryKeyRelatedField(queryset=Series.objects.all(), required=True)
-    seccion = serializers.PrimaryKeyRelatedField(queryset=Seccion.objects.all(), required=True)
+   #serie = serializers.PrimaryKeyRelatedField(queryset=Series.objects.all(), required=True)
+    #seccion = serializers.PrimaryKeyRelatedField(queryset=Seccion.objects.all(), required=True)
     num_expediente = serializers.PrimaryKeyRelatedField(queryset=portada.objects.all(), required = True)
     
     """extra_kwargs = {
