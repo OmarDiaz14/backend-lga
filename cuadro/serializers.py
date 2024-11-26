@@ -13,7 +13,7 @@ class SeccionSerializer(serializers.ModelSerializer):
 class SerieSerializer(serializers.ModelSerializer):
     class Meta:
         model = Series
-        fields = ('id_serie', 'serie', 'codigo_serie','descripcion','id_seccion')
+        fields = ( 'serie', 'codigo_serie','descripcion','id_seccion')
 
     id_seccion = serializers.PrimaryKeyRelatedField(queryset=Seccion.objects.all(), required=True)
 
@@ -23,4 +23,4 @@ class SubSerieSerializer(serializers.ModelSerializer):
         model = SubSerie
         fields = ('SubSerie', 'descripcion','serie')
     
-    serie = serializers.PrimaryKeyRelatedField(queryset=Series.objects.all(), required = True)
+    serie = serializers.PrimaryKeyRelatedField(queryset=Series.objects.all(), required = True)  
