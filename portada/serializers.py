@@ -9,9 +9,10 @@ class portadaSerializer (serializers.ModelSerializer):
     #soporte_docu = serializers.CharField(source='FichaTecnica.soporte_docu', read_only=True) 
     class Meta:
         model = portada
-        fields = ['id_expediente', 'num_expediente','asunto', 'num_legajos', 'num_fojas' ,
-                   'valores_secundarios','fecha_apertura', 'fecha_cierre', 'archivo_tramite', 
-                   'archivo_concentracion','seccion','serie','subserie','ficha', 'soporte_docu', 'destino','valor', 'type', 'catalogo']
+        fields = '__all__'
+
+        read_only_fields = ('num_expediente',) # No permite editar el numero de expediente
+
     seccion = serializers.PrimaryKeyRelatedField(queryset=Seccion.objects.all(), required=True)
     serie = serializers.PrimaryKeyRelatedField(queryset=Series.objects.all(), required=True)
     ficha = serializers.PrimaryKeyRelatedField(queryset=FichaTecnica.objects.all(),required =True)

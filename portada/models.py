@@ -66,3 +66,27 @@ class portada (models.Model):
             return self.catalogo.archivo_concentracion.archivo_concentracion
         else:
             return None
+        
+
+    def save(self, *args, **kwargs):
+        if not self.num_expediente:
+            if self.serie and self.serie.codigo_serie:
+                #Crea el numero de expediente pero basado con el codigo de serie
+                prefix = f"{self.serie.codigo_serie}" #codigo de serie
+
+            else:
+                prefix = "GENERAL" #Se ingresa General si no hay una serie
+            
+            #Agrega el year y un contador unico 
+            year = self.fecha_apertura.year
+            count = portada.objects.filter(
+                fecha_apertura__year=year,
+                serie = self.serie
+            ).count() + 1
+            #Fromato del num de expe
+
+            self.num_expediente = f"{prefix}.{year}.{count:04d}" #Exple: "Serie-2004-0001"
+        super().save(*args, **kwargs)
+
+
+        
