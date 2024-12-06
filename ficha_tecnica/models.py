@@ -9,6 +9,8 @@ class FichaTecnica(models.Model):
     area_intervienen = models.CharField(max_length=250)
     descripcion = models.CharField(max_length=250)
     soporte_docu = models.CharField(max_length=250)
+    topologia = models.CharField(max_length=250)
+    catalogo = models.ForeignKey('catalogo.Catalogo', on_delete=models.CASCADE, null=True, blank= False)
     id_seccion = models.ForeignKey('cuadro.Seccion', on_delete=models.CASCADE,  null=True, blank=False)
     id_serie = models.ForeignKey('cuadro.Series', on_delete=models.CASCADE, null=True, blank=False)
     id_subserie = models.ForeignKey('cuadro.SubSerie', on_delete=models.CASCADE, null=True, blank=False)
