@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 
 class FichaTecViewSet(viewsets.ModelViewSet):
     queryset = FichaTecnica.objects.all()
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     serializer_class = FichaTecSerializer
 
 

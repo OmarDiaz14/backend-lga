@@ -10,5 +10,5 @@ from rest_framework.permissions import IsAuthenticated
 
 class PortadaViewSet (viewsets.ModelViewSet):
     queryset = portada.objects.all()
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     serializer_class = portadaSerializer
