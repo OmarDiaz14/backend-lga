@@ -118,6 +118,7 @@ WSGI_APPLICATION = 'lga.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -128,11 +129,6 @@ DATABASES = {
         'PORT': '5432',
     }
 }
-
-
-
-
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

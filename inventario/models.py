@@ -69,7 +69,7 @@ class Inventario(models.Model):
     @property
     def valores_primarios(self):
         if self.expediente:  
-            return self.expediente.valor
+            return self.expediente.valor_primario
         else:
             return None
         

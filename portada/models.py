@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.db.models import JSONField
 # Create your models here.
 
 class portada (models.Model):
@@ -18,12 +18,16 @@ class portada (models.Model):
     valores_secundarios = models.CharField(max_length=15, choices=Valor, default='informativo')
     fecha_apertura = models.DateField(null=False)
     fecha_cierre = models.DateField(null= True)
+
     seccion = models.ForeignKey('cuadro.Seccion',on_delete=models.CASCADE, null= True, blank= True)
     serie = models.ForeignKey('cuadro.Series', on_delete=models.CASCADE, null= True, blank=True)
     subserie = models.ForeignKey('cuadro.Subserie', on_delete=models.CASCADE, null = True, blank=True )
     ficha = models.ForeignKey('ficha_tecnica.FichaTecnica', on_delete=models.CASCADE, null= True, blank= True )
     catalogo = models.ForeignKey('catalogo.Catalogo', on_delete=models.CASCADE, null= True, blank= True)
 
+    alfresco_response = JSONField(null=True, blank=True)
+    documento_ruta = models.CharField(max_length=255, null=True, blank=True)
+    documento_id = models.CharField(max_length=100, null=True, blank=True)
 
 
     @property
@@ -40,12 +44,12 @@ class portada (models.Model):
         else:
             return None
     @property
-    def valor(self):
+    def valor_primario(self):
         if self.catalogo:
             return self.catalogo.valores_documentales.valores
         else:
             return None
-        
+                
     @property
     def type(self):
         if self.catalogo:
@@ -67,6 +71,11 @@ class portada (models.Model):
         else:
             return None
         
+    def actualizar_alfresco(self, respuesta_alfresco):
+        self.alfresco_response = respuesta_alfresco
+        self.documento_ruta = respuesta_alfresco.get('Ruta')
+        self.documento_id = respuesta_alfresco.get('DocumentId')
+        self.save()
 
     def save(self, *args, **kwargs):
         if not self.num_expediente:

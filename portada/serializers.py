@@ -14,8 +14,8 @@ class portadaSerializer (serializers.ModelSerializer):
 
     class Meta:
         model = portada
-        fields = '__all__'
-        read_only_fields = ('num_expediente',) # No permite editar el numero de expediente
+        fields = ['id_expediente','num_expediente','asunto','num_legajos','num_fojas','valores_secundarios','fecha_apertura','fecha_cierre','soporte_docu','destino', 'valor_primario','type','archivo_tramite', 'archivo_concentracion','seccion','serie','subserie','ficha','catalogo','alfresco_response','documento_ruta', 'documento_id','catalogo_details','ficha_details']
+        read_only_fields = ('num_expediente','alfresco_response', 'documento_id','documento_ruta') # No permite editar el numero de expediente
 
     seccion = serializers.PrimaryKeyRelatedField(queryset=Seccion.objects.all(), required=True)
     serie = serializers.PrimaryKeyRelatedField(queryset=Series.objects.all(), required=True)
@@ -28,9 +28,9 @@ class portadaSerializer (serializers.ModelSerializer):
             return FichaTecSerializer(ficha).data if ficha else None
         return None
     
-    def catalogo_details(self, obj):
+    def get_catalogo_details(self, obj):
         if obj.serie:
-            catalogo = CatalogoSerializer.objects.filter(id_serie=obj.serie).first()
+            catalogo = Catalogo.objects.filter(id_serie=obj.serie).first()
             return CatalogoSerializer(catalogo).data if catalogo else None
         return None 
     
