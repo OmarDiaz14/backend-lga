@@ -6,14 +6,10 @@ from django.db import models
 class Inventario(models.Model):
     num_consecutivo = models.AutoField(primary_key=True)
     serie = models.ForeignKey('cuadro.Series', on_delete=models.CASCADE, null= True, blank=True)
-    descripsion = models.CharField(max_length=250) # Revisar en que tabla se saca la informacion de la descripsion 
-    observaciones = models.CharField(max_length=250, blank=True, null=True)
+    descripsion = models.CharField(max_length=250, null= True) # Revisar en que tabla se saca la informacion de la descripsion 
+    observaciones = models.CharField(max_length=250, null= True)
     expediente = models.ForeignKey('portada.portada', on_delete=models.CASCADE, null= True, blank= True )
-    VALORES_ESTATUS = [
-        ('abierto', 'Abierto'),
-        ('cerrado', 'Cerrado'),
-    ]
-    estatus = models.CharField(max_length=15, choices=VALORES_ESTATUS, default='abierto', )
+    
     
     @property
     def num_expediente(self):

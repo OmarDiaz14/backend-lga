@@ -9,7 +9,7 @@ class InventarioSerializer (serializers.ModelSerializer):
     class Meta:
         model = Inventario
         fields = ['num_consecutivo','serie', 'descripsion' ,
-                   'observaciones','expediente','num_expediente','fecha_inicio','fecha_fin', 'legajos', 'fojas','valores_primarios', 'soporte', 'destino', 'acceso', 'estatus']
+                   'observaciones','expediente','num_expediente','fecha_inicio','fecha_fin', 'legajos', 'fojas','valores_primarios', 'soporte', 'destino', 'acceso']
     #seccion = serializers.PrimaryKeyRelatedField(queryset=Seccion.objects.all(), required=True)
     serie = serializers.PrimaryKeyRelatedField(queryset=Series.objects.all(), required=True)
     expediente = serializers.PrimaryKeyRelatedField(queryset=portada.objects.all(),required =True )
