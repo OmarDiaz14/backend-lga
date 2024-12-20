@@ -1,4 +1,5 @@
 import requests
+from django.http import HttpResponse
 from django.shortcuts import render
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
@@ -81,3 +82,42 @@ class PortadaViewSet(viewsets.ModelViewSet):
                 'error': 'Error inesperado',
                 'detalles': str(e)
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    @action(detail=True, methods=['GET'], url_path='get-alfresco-document')
+    def get_alfresco_document(self, request, pk=None):
+        # Obtiene la instancia de portada
+        portada_instance = self.get_object()
+
+        # Verifica si hay un documento asociado
+        if not portada_instance.documento_id:
+            return Response(
+                {"error": "No hay Documento ID asociado a este expediente"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        # Construye la URL para la consulta
+        documento_id = portada_instance.documento_id
+        url = f"http://169.47.93.83:8082/api/documents/visualizar/{documento_id}"
+
+        # Realiza la solicitud GET a Alfresco
+        response = requests.get(url, stream=True)
+
+        # Verifica el estado de la respuesta
+        if response.status_code == 200:
+            content_type = response.headers.get('Content-Type', 'application/octet-stream')
+            file_name = f"{documento_id}.pdf"
+
+            # Devuelve el archivo como respuesta
+            return HttpResponse(
+                response.content,
+                content_type=content_type,
+                headers={
+                    'Content-Disposition': f'inline; filename="{file_name}"'
+                }
+            )
+
+        # Maneja errores de la API de Alfresco
+        return Response(
+            {"error": f"Error al obtener el documento de Alfresco: {response.text}"},
+            status=response.status_code
+        )
