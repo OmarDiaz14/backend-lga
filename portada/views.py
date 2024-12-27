@@ -121,3 +121,34 @@ class PortadaViewSet(viewsets.ModelViewSet):
             {"error": f"Error al obtener el documento de Alfresco: {response.text}"},
             status=response.status_code
         )
+    
+    @action(detail=True, methods=['DELETE'], url_path='delete-alfresco-document')
+    def delete_alfresco_document(self,request,pk=None):
+        portada_instance = self.get_object()
+
+        if not portada_instance.documento_id:
+            return Response(
+                {"error":"No hay Documento ID asociado a este expediente"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        base_url = "http://169.47.93.83:8082/api/documents/eliminar/"
+        documento_id = portada_instance.documento_id
+        url = f"{base_url}{documento_id}"
+
+        response = requests.delete(url)
+
+        if response.status_code == 200:
+            #limpia todos los campos 
+            portada_instance.documento_id = None
+            portada_instance.documento_ruta = None
+            portada_instance.alfresco_response = None
+            portada_instance.save()
+
+            return Response({"message": "Documento eliminado"})
+        
+        return Response (
+            {"error":f"Error al eliminar el documento de Alfresco: {response.text}"},
+            status=response.status_code
+        )
+
