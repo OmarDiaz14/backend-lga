@@ -29,7 +29,7 @@ class GuiaDocu(models.Model):
     @property
     def seccion(self):
         if self.num_expediente:
-            return self.num_expediente.seccion.id_seccion 
+            return self.num_expediente.seccion.seccion 
         else:
             return None
 
@@ -40,3 +40,9 @@ class GuiaDocu(models.Model):
         else:
             return None
     
+    @property
+    def num_expediente_info(self):
+        if self.num_expediente:
+            return self.num_expediente
+        else:
+            return None

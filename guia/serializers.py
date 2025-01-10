@@ -5,6 +5,7 @@ from portada.models import portada
 
 
 class GuiaSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = GuiaDocu
         fields = ['id_guia', 'descripcion', 'volumen', 'ubicacion_fisica',
@@ -13,6 +14,8 @@ class GuiaSerializer(serializers.ModelSerializer):
    #serie = serializers.PrimaryKeyRelatedField(queryset=Series.objects.all(), required=True)
     #seccion = serializers.PrimaryKeyRelatedField(queryset=Seccion.objects.all(), required=True)
     num_expediente = serializers.PrimaryKeyRelatedField(queryset=portada.objects.all(), required = True)
+    
+
     
     """extra_kwargs = {
             'serie': {'required': True}  # Se asegura de que sea obligatorio
