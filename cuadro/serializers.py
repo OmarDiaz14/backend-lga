@@ -2,6 +2,17 @@ from rest_framework import serializers
 from .models import Seccion, Series, SubSerie
 
 
+class ExcelUploadSerializer(serializers.ModelSerializer):
+    file = serializers.FileField()
+
+    class Meta:
+        model = Seccion
+        fields = ['file']
+
+    def validate_file(self,value):
+        if not value.name.endswith('.xlsm'):
+            raise serializers.ValidationError("solo archivos excel (.xlsx)")
+        return value
 
 class SeccionSerializer(serializers.ModelSerializer):
     class Meta:
