@@ -24,29 +24,36 @@ class portadaSerializer (serializers.ModelSerializer):
 
     def get_ficha_details(self, obj):
         if obj.serie:
-            ficha = FichaTecnica.objects.filter(id_serie=obj.serie).first()  
+            ficha = FichaTecnica.objects.filter(serie=obj.serie).first()  
             return FichaTecSerializer(ficha).data if ficha else None
         return None
     
     def get_catalogo_details(self, obj):
         if obj.serie:
-            catalogo = Catalogo.objects.filter(id_serie=obj.serie).first()
+            catalogo = Catalogo.objects.filter(serie=obj.serie).first()
             return CatalogoSerializer(catalogo).data if catalogo else None
         return None 
     
     def create(self, validated_data):
         serie = validated_data.get('serie')
         if serie:
-            ficha = FichaTecnica.objects.filter(id_serie=serie).first()
+            ficha = FichaTecnica.objects.filter(serie=serie).first()
             if ficha:
                 validated_data['ficha'] = ficha
 
             
-            catalogo = Catalogo.objects.filter(id_serie=serie).first()
+            catalogo = Catalogo.objects.filter(serie=serie).first()
             if catalogo:
                 validated_data['catalogo'] = catalogo
         
         return super().create(validated_data)
     
    
-    
+class PortadaQuerySerializer(serializers.Serializer):
+    id_expediente = serializers.IntegerField()
+    num_expediente = serializers.CharField()
+    asunto = serializers.CharField()
+    f_apertura = serializers.CharField()
+    f_cierre = serializers.CharField()
+    ficha = serializers.CharField()
+    catalogo = serializers.CharField()

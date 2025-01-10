@@ -9,18 +9,21 @@ class FichaTecSerializer(serializers.ModelSerializer):
     catalogo_details = serializers.SerializerMethodField()
 
     class Meta:
-    
-
         model = FichaTecnica
         fields = '__all__'
     
-    id_seccion = serializers.PrimaryKeyRelatedField(queryset=Seccion.objects.all(), required=True)
-    id_serie = serializers.PrimaryKeyRelatedField(queryset=Series.objects.all(), required=True)
+    # id_seccion = serializers.PrimaryKeyRelatedField(queryset=Seccion.objects.all(), required=True)
+    # id_serie = serializers.PrimaryKeyRelatedField(queryset=Series.objects.all(), required=True)
+    
+    # def get_catalogo_details(self, obj):
+    #     if obj.id_serie:
+    #         catalogo = Catalogo.objects.filter(id_serie=obj.id_serie).first()
+    #         return CatalogoSerializer(catalogo).data if catalogo else None
+    #     return None
     
     def get_catalogo_details(self, obj):
-        if obj.id_serie:
-            catalogo = Catalogo.objects.filter(id_serie=obj.id_serie).first()
-            return CatalogoSerializer(catalogo).data if catalogo else None
+        if obj.catalogo:
+            return CatalogoSerializer(obj.catalogo).data
         return None
     
     def create(self, validated_data):

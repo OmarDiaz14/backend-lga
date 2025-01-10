@@ -1,12 +1,13 @@
 from django.db import models
 from django.db.models import JSONField
+from django.db import connection
 # Create your models here.
 
 class portada (models.Model):
 
     Valor = [
         ('informativo', 'Informativo'),
-        ('evidencial', 'Evidencia'),
+        ('evidencial', 'Evidencial'),
         ('testimonial', 'Testimonial'),
     ]
 
@@ -97,5 +98,24 @@ class portada (models.Model):
             self.num_expediente = f"{prefix}.{year}.{count:04d}" #Exple: "Serie-2004-0001"
         super().save(*args, **kwargs)
 
+    def obtener_portada_seccion(seccion):
+        with connection.cursor() as cursor:
+            print(seccion)
+            cursor.callproc('obtener_portadas_seccion', seccion)
+            portadas = cursor.fetchall() 
+            print(portadas)
+        
+        columns = ["id_expediente", "num_expediente", "asunto", "f_apertura", "f_cierre", "ficha", "catalogo"]
+        portadas_dict = [dict(zip(columns, row)) for row in portadas]
+        return portadas_dict
+    
+    def obtener_expediente(num_exp):
+        with connection.cursor() as cursor:
+            cursor.callproc('obtener_portada_exp', num_exp)
+            portadas = cursor.fetchall() 
+        
+        columns = ["id_expediente", "num_expediente", "asunto", "f_apertura", "f_cierre", "ficha", "catalogo"]
+        portadas_dict = [dict(zip(columns, row)) for row in portadas]
+        return portadas_dict
 
         

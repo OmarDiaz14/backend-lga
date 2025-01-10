@@ -25,6 +25,6 @@ class ValorViewSet(viewsets.ModelViewSet):
 
 class CatalogoViewSet(viewsets.ModelViewSet):
     queryset = Catalogo.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = []
     serializer_class = CatalogoSerializer
 # Create your views here.

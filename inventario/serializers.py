@@ -8,7 +8,7 @@ class InventarioSerializer (serializers.ModelSerializer):
     #soporte_docu = serializers.CharField(source='FichaTecnica.soporte_docu', read_only=True) 
     class Meta:
         model = Inventario
-        fields = ['num_consecutivo','serie', 'descripsion' ,
+        fields = ['num_consecutivo','serie', 'descripcion' ,
                    'observaciones','expediente','num_expediente','fecha_inicio','fecha_fin', 'legajos', 'fojas','valores_primarios', 'soporte', 'destino', 'acceso']
     #seccion = serializers.PrimaryKeyRelatedField(queryset=Seccion.objects.all(), required=True)
     serie = serializers.PrimaryKeyRelatedField(queryset=Series.objects.all(), required=True)

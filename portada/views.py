@@ -5,12 +5,12 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from .serializers import portadaSerializer
+from .serializers import portadaSerializer, PortadaQuerySerializer
 from .models import portada
 
 class PortadaViewSet(viewsets.ModelViewSet):
     queryset = portada.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = []
     serializer_class = portadaSerializer
 
     @action(detail=False, methods=['POST'], url_path='upload-alfresco-document')
@@ -152,3 +152,33 @@ class PortadaViewSet(viewsets.ModelViewSet):
             status=response.status_code
         )
 
+    @action(detail=True, methods=['GET'], url_path='get-portada-seccion')
+    def get_portada_seccion(self, request, pk=None):
+        print(1)
+        seccion = pk
+        try: 
+            portadas = portada.obtener_portada_seccion(seccion)
+            serializer = PortadaQuerySerializer(portadas, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+     
+         
+    @action(detail=True, methods=['GET'], url_path='get-portada-exp')
+    def get_portada_exp(self, request, pk=None):
+        print(1)
+        num_exp = pk
+        try: 
+            portadas = portada.obtener_expediente(num_exp)
+            serializer = PortadaQuerySerializer(portadas, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )  
