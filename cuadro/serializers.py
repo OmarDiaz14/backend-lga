@@ -14,6 +14,18 @@ class ExcelUploadSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("solo archivos excel (.xlsx)")
         return value
 
+class ExcelUploadSerializer(serializers.Serializer):
+    file = serializers.FileField()  
+
+    class Meta:
+        model = Seccion
+        fields = ['file']
+
+    def validate_file(self, value):
+        if not value.name.endswith('.xlsx'):
+            raise serializers.ValidationError('File type not supported')
+        return value
+
 class SeccionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Seccion
