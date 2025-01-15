@@ -121,7 +121,7 @@ WSGI_APPLICATION = 'lga.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'lga_main',
+        'NAME': 'lga_test_db',
         'USER': 'team',
         'PASSWORD': '@pwdlga2024',
         'HOST': '52.118.210.246',
