@@ -119,22 +119,22 @@ WSGI_APPLICATION = 'lga.wsgi.application'
 
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'lga_test_db',
-        'USER': 'team',
-        'PASSWORD': '@pwdlga2024',
-        'HOST': '52.118.210.246',
-        'PORT': '5432',
-    }
     # 'default': {
     #     'ENGINE': 'django.db.backends.postgresql',
-    #     'NAME': 'lga_main',
+    #     'NAME': 'lga_test_db',
     #     'USER': 'team',
     #     'PASSWORD': '@pwdlga2024',
     #     'HOST': '52.118.210.246',
     #     'PORT': '5432',
     # }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'lga_main',
+        'USER': 'team',
+        'PASSWORD': '@pwdlga2024',
+        'HOST': '52.118.210.246',
+        'PORT': '5432',
+    }
     # 'default': {
     #     'ENGINE': 'django.db.backends.postgresql',
     #     'NAME': 'alfresco',
