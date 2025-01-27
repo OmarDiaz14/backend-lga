@@ -26,7 +26,7 @@ class CatalogoSerializer(serializers.ModelSerializer):
 
     seccion = serializers.PrimaryKeyRelatedField(queryset=Seccion.objects.all(), required=True)
     serie = serializers.PrimaryKeyRelatedField(queryset=Series.objects.all(), required=True)
-    subserie = serializers.PrimaryKeyRelatedField(queryset=SubSerie.objects.all(), required=True)
+    # subserie = serializers.PrimaryKeyRelatedField(queryset=SubSerie.objects.all(), required=True)
     destino_expe = serializers.PrimaryKeyRelatedField(queryset=destino_expe.objects.all(),required=True)
     type_access = serializers.PrimaryKeyRelatedField(queryset=type_access.objects.all(), required=True)
     valores_documentales = serializers.PrimaryKeyRelatedField(queryset = valores_docu.objects.all(), required=True)

@@ -27,9 +27,9 @@ class FichaTecSerializer(serializers.ModelSerializer):
         return None
     
     def create(self, validated_data):
-        serie = validated_data.get('id_serie')
+        serie = validated_data.get('serie')
         if serie:
-            catalogo = Catalogo.objects.filter(id_serie=serie).first()
+            catalogo = Catalogo.objects.filter(serie=serie).first()
             if catalogo:
                 validated_data['catalogo'] = catalogo
         return super().create(validated_data)
