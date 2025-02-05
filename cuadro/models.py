@@ -4,23 +4,26 @@ from django.db import models
 
 
 class Seccion(models.Model):
-    id_seccion =  models.CharField(max_length=250,primary_key=True)
-    codigo = models.CharField(max_length=200) 
-    descripcion = models.TextField() 
-
-    
+    id_seccion =  models.AutoField(primary_key=True)
+    codigo_seccion = models.CharField(max_length=50)
+    seccion = models.TextField() 
+    descripcion = models.TextField(null= True) 
+    delete = models.BooleanField(default=False)
 
 class Series(models.Model):
-    serie = models.CharField(max_length=150, primary_key=True)
-    codigo_serie= models.TextField()
-    descripcion = models.TextField()
-    id_seccion = models.ForeignKey('Seccion', on_delete=models.CASCADE, db_column='seccion', blank=True, null=True)
-       
-
-
+    id_serie =  models.AutoField(primary_key=True)
+    codigo_serie= models.CharField(max_length=50)
+    serie = models.TextField() 
+    descripcion = models.TextField(null= True) 
+    id_seccion = models.ForeignKey('Seccion', on_delete=models.CASCADE, db_column='id_seccion', blank=True, null=True)
+    delete = models.BooleanField(default=False)
+     
 class SubSerie(models.Model):
-    SubSerie = models.CharField(max_length=150,primary_key=True)
-    descripcion = models.TextField()
-    serie = models.ForeignKey('Series', on_delete=models.CASCADE,blank= True, null= True)
+    id_subserie =  models.AutoField(primary_key=True)
+    codigo_subserie = models.CharField(max_length=50)
+    subserie = models.TextField()
+    descripcion = models.TextField(null= True) 
+    id_serie = models.ForeignKey('Series', on_delete=models.CASCADE, db_column='id_serie', blank= True, null= True)
+    delete = models.BooleanField(default=False)
     
     

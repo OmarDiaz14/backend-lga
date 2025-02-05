@@ -10,7 +10,7 @@ from rest_framework.permissions import IsAuthenticated
 class FichaTecViewSet(viewsets.ModelViewSet):
     lookup_value_regex = r'[^/]+'  # Para aceptar valores con / en el campo de búsqueda 
     queryset = FichaTecnica.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = []
     serializer_class = FichaTecSerializer
 
 

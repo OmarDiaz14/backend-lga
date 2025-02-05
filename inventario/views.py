@@ -10,5 +10,5 @@ from rest_framework.permissions import IsAuthenticated
 
 class InventarioViewSet (viewsets.ModelViewSet):
     queryset = Inventario.objects.all()
-    permission_classes = [IsAuthenticated]
+    permission_classes = []
     serializer_class = InventarioSerializer
