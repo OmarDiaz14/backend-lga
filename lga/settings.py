@@ -57,8 +57,8 @@ INSTALLED_APPS = [
     'portada',
     'guia',
     'inventario',
-    'uploadpdf'
-    
+    'uploadpdf',
+    'dashboard',
 
 ]
 
@@ -119,22 +119,22 @@ WSGI_APPLICATION = 'lga.wsgi.application'
 
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.postgresql',
-    #     'NAME': 'lga_main',
-    #     'USER': 'team',
-    #     'PASSWORD': '@pwdlga2024',
-    #     'HOST': '52.118.210.246',
-    #     'PORT': '5432',
-    # }
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'lga-mbn',
-        'USER': 'postgres',
-        'PASSWORD': 'riskis75',
-        'HOST': 'localhost',
+        'NAME': 'lga_main',
+        'USER': 'team',
+        'PASSWORD': '@pwdlga2024',
+        'HOST': '52.118.210.246',
         'PORT': '5432',
     }
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.postgresql',
+    #     'NAME': 'lga-mbn',
+    #     'USER': 'postgres',
+    #     'PASSWORD': 'riskis75',
+    #     'HOST': 'localhost',
+    #     'PORT': '5432',
+    # }
 }
 
 # Password validation
@@ -183,4 +183,6 @@ if not DEBUG:
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'user.User'
+
+
 

@@ -15,7 +15,6 @@ from .serializers import RolSerializer
 
 
 
-
 # Create your views here.
 
 class RolViewSet (viewsets.ModelViewSet):
@@ -51,6 +50,7 @@ def login (request):
     serializer = UserSerializer(instance=user)
 
 
+    
     return Response ({"token": token.key, "user": serializer.data}, status=status.
                      HTTP_200_OK)
 
