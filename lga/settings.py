@@ -129,7 +129,7 @@ DATABASES = {
     # }
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'lga_test_db',
+        'NAME': 'lga_main',
         'USER': 'team',
         'PASSWORD': '@pwdlga2024',
         'HOST': '52.118.210.246',
