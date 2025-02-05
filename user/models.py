@@ -17,4 +17,10 @@ class User(AbstractUser):
     unidad_admi = models.CharField(max_length=150, null= True, blank= True)
     roles = models.ManyToManyField(Roles)
     id_seccion = models.ForeignKey('cuadro.Seccion', models.DO_NOTHING,  null=True, blank=False)
-    
+
+    @property
+    def name_seccion(self):
+        if self.id_seccion:
+            return self.id_seccion.seccion
+        else:
+            return None
