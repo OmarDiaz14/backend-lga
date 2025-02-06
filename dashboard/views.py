@@ -11,7 +11,7 @@ from .serializers import DashboardSerializer
 class DashboardViewSet(viewsets.ModelViewSet):
     lookup_value_regex = r'[^/]+'
     queryset = dashboard.objects.all()
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     
     @action(detail=True, methods=['GET'], url_path='get-dashboard')
     def get_dashboard(self, request, pk=None):
