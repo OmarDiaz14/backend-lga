@@ -9,6 +9,7 @@ from .serializers import portadaSerializer, PortadaQuerySerializer
 from .models import portada
 
 class PortadaViewSet(viewsets.ModelViewSet):
+    lookup_value_regex = r'[^/]+'
     queryset = portada.objects.all()
     permission_classes = []
     serializer_class = portadaSerializer
@@ -154,7 +155,6 @@ class PortadaViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['GET'], url_path='get-portada-seccion')
     def get_portada_seccion(self, request, pk=None):
-        print(1)
         seccion = pk
         try: 
             portadas = portada.obtener_portada_seccion(seccion)
@@ -168,9 +168,8 @@ class PortadaViewSet(viewsets.ModelViewSet):
             )
      
          
-    @action(detail=True, methods=['GET'], url_path='get-portada-exp')
-    def get_portada_exp(self, request, pk=None):
-        print(1)
+    @action(detail=True, methods=['GET'], url_path='get-portada-expediente')
+    def get_portada_expediente(self, request, pk=None):
         num_exp = pk
         try: 
             portadas = portada.obtener_expediente(num_exp)
@@ -182,3 +181,17 @@ class PortadaViewSet(viewsets.ModelViewSet):
                 {"error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )  
+            
+    @action(detail=True, methods=['GET'], url_path='get-portada-asunto')
+    def get_portada_asunto(self, request, pk=None):
+        asunto = pk
+        try: 
+            portadas = portada.obtener_portada_asunto(asunto)
+            serializer = PortadaQuerySerializer(portadas, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

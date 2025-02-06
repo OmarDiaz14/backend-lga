@@ -100,10 +100,8 @@ class portada (models.Model):
 
     def obtener_portada_seccion(seccion):
         with connection.cursor() as cursor:
-            print(seccion)
-            cursor.callproc('obtener_portadas_seccion', seccion)
+            cursor.callproc('obtener_portadas_seccion', [seccion])
             portadas = cursor.fetchall() 
-            print(portadas)
         
         columns = ["id_expediente", "num_expediente", "asunto", "f_apertura", "f_cierre", "ficha", "catalogo"]
         portadas_dict = [dict(zip(columns, row)) for row in portadas]
@@ -111,7 +109,16 @@ class portada (models.Model):
     
     def obtener_expediente(num_exp):
         with connection.cursor() as cursor:
-            cursor.callproc('obtener_portada_exp', num_exp)
+            cursor.callproc('obtener_portada_exp', [num_exp])
+            portadas = cursor.fetchall() 
+        
+        columns = ["id_expediente", "num_expediente", "asunto", "f_apertura", "f_cierre", "ficha", "catalogo"]
+        portadas_dict = [dict(zip(columns, row)) for row in portadas]
+        return portadas_dict
+    
+    def obtener_portada_asunto(asunto):
+        with connection.cursor() as cursor:
+            cursor.callproc('obtener_portada_asunto', [asunto])
             portadas = cursor.fetchall() 
         
         columns = ["id_expediente", "num_expediente", "asunto", "f_apertura", "f_cierre", "ficha", "catalogo"]

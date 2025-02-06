@@ -27,7 +27,8 @@ urlpatterns = [
     path ('portada/', include('portada.urls')),
     path('guia_docu/', include('guia.urls')),
     path('inventario/', include('inventario.urls')),
-    path('documento/', include('uploadpdf.urls'))
+    path('documento/', include('uploadpdf.urls')),
+    path('dashboard/', include('dashboard.urls')),
 ]
 
 

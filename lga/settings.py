@@ -57,8 +57,8 @@ INSTALLED_APPS = [
     'portada',
     'guia',
     'inventario',
-    'uploadpdf'
-    
+    'uploadpdf',
+    'dashboard',
 
 ]
 
@@ -192,4 +192,6 @@ if not DEBUG:
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'user.User'
+
+
 
