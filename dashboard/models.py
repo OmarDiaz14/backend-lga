@@ -17,5 +17,23 @@ class dashboard (models.Model):
             cursor.callproc('obtener_total_expedientes', [id_seccion])
             total = cursor.fetchall()
             
-            total_expedientes = total[0][0] if total else 0
-            return {"total_expedientes": total_expedientes}
+            total_portadas = total[0][0] if total else 0
+            return {"total_portadas": total_portadas}
+        
+    def obtener_total_fichas(id_seccion):
+        with connection.cursor() as cursor:
+            cursor.callproc('obtener_total_fichas', [id_seccion])
+            total = cursor.fetchall()
+            
+            total_fichas = total[0][0] if total else 0
+            return {"total_fichas": total_fichas}
+    
+    def obtener_total_catalogos(id_seccion):
+        with connection.cursor() as cursor:
+            cursor.callproc('obtener_total_catalogos', [id_seccion])
+            total = cursor.fetchall()
+            
+            total_catalogos = total[0][0] if total else 0
+            return {"total_catalogos": total_catalogos}
+        
+    
