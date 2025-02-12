@@ -11,7 +11,7 @@ from .models import portada
 class PortadaViewSet(viewsets.ModelViewSet):
     lookup_value_regex = r'[^/]+'
     queryset = portada.objects.all()
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     serializer_class = portadaSerializer
 
     @action(detail=False, methods=['POST'], url_path='upload-alfresco-document')
