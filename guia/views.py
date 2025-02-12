@@ -10,5 +10,5 @@ from rest_framework.permissions import IsAuthenticated
 
 class GuiaViewSet(viewsets.ModelViewSet):
     queryset = GuiaDocu.objects.all()
-    permission_classes = []
+    permission_classes = [IsAuthenticated]
     serializer_class = GuiaSerializer
