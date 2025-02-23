@@ -5,6 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets, permissions
+from rest_framework.viewsets import GenericViewSet
 from .serializers import  SeccionSerializer, SerieSerializer, SubSerieSerializer, ExcelUploadSerializer
 from .models import Seccion, Series, SubSerie
 from rest_framework.permissions import IsAuthenticated
@@ -31,130 +32,125 @@ class SubSerieViewSet(viewsets.ModelViewSet):
 
 
 logger = logging.getLogger(__name__)
-class ImportExcelView(viewsets.ModelViewSet):
-    queryset = Seccion.objects.none()
-    permission_classes = [IsAuthenticated]
+class ImportExcelView(GenericViewSet):
     serializer_class = ExcelUploadSerializer
+    permission_classes = []
 
-    def validate_columns(self, df, required_columns):
+    def validate_columns(self, df, sheet_number):
         df.columns = df.columns.str.strip().str.lower()
-        missing_columns = [col for col in required_columns if col not in df.columns]
+        
+        if sheet_number == 0:  # Primera sección del Excel
+            required_columns = ['codigo', 'secciones']
+        else:  # Segunda sección del Excel
+            required_columns = ['codigo', 'seccion', 'series']
+            
+        missing_columns = [col for col in required_columns if col.lower() not in df.columns]
         if missing_columns:
-            raise ValueError(f'Columnas faltantes: {", ".join(missing_columns)}')
+            raise ValueError(f'Columnas faltantes en la hoja {sheet_number + 1}: {", ".join(missing_columns)}')
         return df
 
-    def process_row(self, row):
-        # Create or update Seccion
-        seccion = Seccion.objects.update_or_create(
-            seccion=str(row['seccion']).strip(),
-            defaults={
-                'codigo_seccion': str(row['codigo_seccion']).strip(),
-                'descripcion': str(row['descripcion_seccion']).strip(),
-                'delete': False
-            }
-        )[0]
+    def process_sections(self, df):
+        sections_dict = {}
+        for index, row in df.iterrows():
+            try:
+                if pd.notna(row['codigo']) and pd.notna(row['secciones']):
+                    codigo = str(row['codigo']).strip()
+                    if codigo.endswith('C'):
+                        seccion = Seccion.objects.update_or_create(
+                            codigo_seccion=codigo,
+                            defaults={
+                                'seccion': str(row['secciones']).strip(),
+                                'descripcion': str(row['secciones']).strip(),
+                                'delete': False
+                            }
+                        )[0]
+                        sections_dict[codigo.replace('C', '')] = seccion
+                        logger.info(f"Sección procesada: {codigo}")
+            except Exception as e:
+                logger.error(f"Error procesando sección en fila {index + 2}: {str(e)}")
+                raise ValueError(f'Error en fila {index + 2}: {str(e)}')
+        return sections_dict
 
-        # Create or update Series
-        serie = Series.objects.update_or_create(
-            serie=str(row['serie']).strip(),
-            defaults={
-                'codigo_serie': str(row['codigo_serie']).strip(),
-                'descripcion': str(row['descripcion_serie']).strip(),
-                'id_seccion': seccion,
-                'delete': False
-            }
-        )[0]
+    def process_series(self, df, sections_dict):
+        series_dict = {}
+        for index, row in df.iterrows():
+            try:
+                if pd.notna(row.get('codigo', '')) and pd.notna(row.get('series', '')):
+                    codigo = str(row['codigo']).strip()
+                    series = str(row['series']).strip()
+                    
+                    # Extraer el código de sección (1C de 1C.1)
+                    section_code = codigo.split('.')[0] + 'C'
+                    
+                    # Buscar la sección correspondiente
+                    section = sections_dict.get(section_code.replace('C', ''))
+                    
+                    if section:
+                        serie = Series.objects.update_or_create(
+                            codigo_serie=codigo,
+                            defaults={
+                                'serie': series,
+                                'descripcion': series,
+                                'id_seccion': section,
+                                'delete': False
+                            }
+                        )[0]
+                        series_dict[codigo] = serie
+                        logger.info(f"Serie procesada: {codigo}")
+            except Exception as e:
+                logger.error(f"Error procesando serie en fila {index + 2}: {str(e)}")
+                raise ValueError(f'Error en fila {index + 2}: {str(e)}')
 
-        # Create or update SubSerie if data exists
-        if all(key in row for key in ['subserie', 'codigo_subserie', 'descripcion_subserie']):
-            if pd.notna(row['subserie']) and pd.notna(row['descripcion_subserie']):
-                SubSerie.objects.update_or_create(
-                    subserie=str(row['subserie']).strip(),
-                    defaults={
-                        'codigo_subserie': str(row['codigo_subserie']).strip(),
-                        'descripcion': str(row['descripcion_subserie']).strip(),
-                        'id_serie': serie,
-                        'delete': False
-                    }
-                )
-
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post'], url_path='upload')
     @transaction.atomic
     def import_excel(self, request):
         try:
-            if 'file' not in request.FILES:
-                logger.error("No file provided in request")
-                return Response(
-                    {'error': 'No se proporcionó archivo'}, 
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+            serializer = self.get_serializer(data=request.data)
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-            required_columns = [
-                'seccion', 'codigo_seccion', 'descripcion_seccion',
-                'serie', 'codigo_serie', 'descripcion_serie'
-            ]
-
-            file = request.FILES['file']
-            logger.info(f"Processing file: {file.name}")
+            file = serializer.validated_data['file']
+            logger.info(f"Procesando archivo: {file.name}")
 
             try:
-                df = pd.read_excel(file, header=3)
-                logger.info(f"Columns found: {df.columns.tolist()}")
-            except Exception as e:
-                logger.error(f"Excel reading error: {str(e)}")
+                # Leer las secciones (primera parte del Excel)
+                df_sections = pd.read_excel(file, nrows=12, skiprows=3)  # Skip 3 rows to start from actual data
+                df_sections = self.validate_columns(df_sections, 0)
+                
+                if df_sections.empty:
+                    raise ValueError('No se encontraron secciones en el archivo')
+
+                # Leer las series (segunda parte del Excel)
+                df_series = pd.read_excel(file, skiprows=18)  # Skip 18 rows to start from series data
+                df_series = self.validate_columns(df_series, 1)
+                
+                if df_series.empty:
+                    raise ValueError('No se encontraron series en el archivo')
+
+                with transaction.atomic():
+                    sections_dict = self.process_sections(df_sections)
+                    self.process_series(df_series, sections_dict)
+
                 return Response(
-                    {'error': f'Error al leer el archivo Excel: {str(e)}'}, 
-                    status=status.HTTP_400_BAD_REQUEST
+                    {'message': 'Importación completada exitosamente'},
+                    status=status.HTTP_201_CREATED
                 )
 
-            try:
-                df = self.validate_columns(df, required_columns)
             except ValueError as e:
-                logger.error(f"Column validation error: {str(e)}")
                 return Response(
-                    {'error': str(e)}, 
+                    {'error': str(e)},
                     status=status.HTTP_400_BAD_REQUEST
                 )
-
-            # Remove completely empty rows
-            df = df.dropna(how='all')
-
-            errors = []
-            successful_rows = 0
-
-            for index, row in df.iterrows():
-                try:
-                    # Skip rows where essential fields are missing
-                    if pd.isna(row['seccion']) or pd.isna(row['serie']):
-                        errors.append(f'Fila {index + 2}: Campos obligatorios faltantes')
-                        continue
-
-                    self.process_row(row)
-                    successful_rows += 1
-
-                except Exception as e:
-                    logger.error(f"Error processing row {index + 2}: {str(e)}")
-                    errors.append(f'Error en fila {index + 2}: {str(e)}')
-
-            response_data = {
-                'message': f'Importación completada. {successful_rows} filas procesadas exitosamente.'
-            }
-            
-            if errors:
-                response_data['errors'] = errors
+            except Exception as e:
+                logger.error(f"Error inesperado: {str(e)}")
                 return Response(
-                    response_data, 
-                    status=status.HTTP_207_MULTI_STATUS
+                    {'error': f'Error procesando el archivo: {str(e)}'},
+                    status=status.HTTP_400_BAD_REQUEST
                 )
-
-            return Response(
-                response_data, 
-                status=status.HTTP_201_CREATED
-            )
 
         except Exception as e:
-            logger.error(f"General error during import: {str(e)}")
+            logger.error(f"Error en la importación: {str(e)}")
             return Response(
-                {'error': f'Error durante la importación: {str(e)}'}, 
+                {'error': f'Error durante la importación: {str(e)}'},
                 status=status.HTTP_400_BAD_REQUEST
             )

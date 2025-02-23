@@ -2,27 +2,11 @@ from rest_framework import serializers
 from .models import Seccion, Series, SubSerie
 
 
-class ExcelUploadSerializer(serializers.ModelSerializer):
+class ExcelUploadSerializer(serializers.Serializer):
     file = serializers.FileField()
 
-    class Meta:
-        model = Seccion
-        fields = ['file']
-
-    def validate_file(self,value):
-        if not value.name.endswith('.xlsm'):
-            raise serializers.ValidationError("solo archivos excel (.xlsx)")
-        return value
-
-class ExcelUploadSerializer(serializers.Serializer):
-    file = serializers.FileField()  
-
-    class Meta:
-        model = Seccion
-        fields = ['file']
-
     def validate_file(self, value):
-        if not value.name.endswith('.xlsx'):
+        if not value.name.endswith(('.xlsx', '.xlsm')):  # Permitir ambos tipos de archivos
             raise serializers.ValidationError('File type not supported')
         return value
 
