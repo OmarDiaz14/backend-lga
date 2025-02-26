@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.db import connection
 # Create your models here.
 
 
@@ -17,6 +17,15 @@ class Series(models.Model):
     descripcion = models.TextField(null= True) 
     id_seccion = models.ForeignKey('Seccion', on_delete=models.CASCADE, db_column='id_seccion', blank=True, null=True)
     delete = models.BooleanField(default=False)
+    
+    def obtener_series_seccion(id_seccion):
+        with connection.cursor() as cursor:
+            cursor.callproc('obtener_series_seccion', [id_seccion])
+            series = cursor.fetchall()
+            
+        colums = ["codigo_serie", "serie", "seccion"]
+        series_dict = [dict(zip(colums, row)) for row in series]
+        return series_dict
      
 class SubSerie(models.Model):
     id_subserie =  models.AutoField(primary_key=True)
@@ -26,4 +35,14 @@ class SubSerie(models.Model):
     id_serie = models.ForeignKey('Series', on_delete=models.CASCADE, db_column='id_serie', blank= True, null= True)
     delete = models.BooleanField(default=False)
     
+    def obtener_subseries_seccion(id_seccion):
+        with connection.cursor() as cursor:
+            cursor.callproc('obtener_subseries_seccion', [id_seccion])
+            subseries = cursor.fetchall()
+            
+        colums = ["codigo_subserie", "subserie", "serie"]
+        subseries_dict = [dict(zip(colums, row)) for row in subseries]
+        return subseries_dict
+    
+
     

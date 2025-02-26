@@ -39,6 +39,11 @@ class SerieSerializer(serializers.ModelSerializer):
         fields = ( 'id_serie', 'serie','codigo_serie','descripcion','id_seccion', 'delete')
 
     id_seccion = serializers.PrimaryKeyRelatedField(queryset=Seccion.objects.all(), required=True)
+    
+class SerieSeccionSerializer(serializers.Serializer):
+    codigo_serie = serializers.CharField()
+    serie = serializers.CharField()
+    seccion = serializers.CharField()
 
 
 class SubSerieSerializer(serializers.ModelSerializer):
@@ -46,4 +51,9 @@ class SubSerieSerializer(serializers.ModelSerializer):
         model = SubSerie
         fields = ('id_subserie', 'subserie', 'codigo_subserie','descripcion','id_serie', 'delete')
     
-    id_serie = serializers.PrimaryKeyRelatedField(queryset=Series.objects.all(), required = True)  
+    id_serie = serializers.PrimaryKeyRelatedField(queryset=Series.objects.all(), required = True) 
+    
+class SubseriesSeccionSerializer(serializers.Serializer):
+    codigo_subserie = serializers.CharField()
+    subserie = serializers.CharField()
+    serie = serializers.CharField() 

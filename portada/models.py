@@ -103,7 +103,7 @@ class portada (models.Model):
             cursor.callproc('obtener_portadas_seccion', [seccion])
             portadas = cursor.fetchall() 
         
-        columns = ["id_expediente", "num_expediente", "asunto", "f_apertura", "f_cierre", "ficha", "catalogo"]
+        columns = ["id_expediente", "num_expediente", "asunto", "fecha_apertura", "fecha_cierre", "ficha", "catalogo"]
         portadas_dict = [dict(zip(columns, row)) for row in portadas]
         return portadas_dict
     

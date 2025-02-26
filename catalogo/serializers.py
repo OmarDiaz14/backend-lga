@@ -30,4 +30,13 @@ class CatalogoSerializer(serializers.ModelSerializer):
     destino_expe = serializers.PrimaryKeyRelatedField(queryset=destino_expe.objects.all(),required=True)
     type_access = serializers.PrimaryKeyRelatedField(queryset=type_access.objects.all(), required=True)
     valores_documentales = serializers.PrimaryKeyRelatedField(queryset = valores_docu.objects.all(), required=True)
+    
+class CatalogoSeccionSerializer(serializers.Serializer):
+    seccion = serializers.CharField()
+    serie = serializers.CharField()
+    valores_docu = serializers.CharField() 
+    archivo_tramite = serializers.CharField() 
+    archivo_concentracion = serializers.CharField() 
+    type_access = serializers.CharField() 
+    destino_expe = serializers.CharField() 
         

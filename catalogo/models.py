@@ -1,4 +1,5 @@
 from django.db import models
+from django.db import connection
 
 class destino_expe (models.Model):
     id_destino = models.AutoField(primary_key= True)
@@ -26,8 +27,16 @@ class Catalogo(models.Model):
     serie = models.ForeignKey('cuadro.Series', on_delete=models.CASCADE,blank= False, null= True)
     subserie = models.ForeignKey('cuadro.SubSerie', on_delete=models.CASCADE, blank=True, null=True)
 
-
+    def obtener_catalogo_seccion(id_seccion):
+        with connection.cursor() as cursor:
+            cursor.callproc('obtener_catalogo_seccion', [id_seccion])
+            catalogo = cursor.fetchall()
+            
+        colums = ["seccion", "serie", "valores_docu", "archivo_tramite", "archivo_concentracion", "type_access", "destino_expe"]
+        catalogo_dict = [dict(zip(colums, row)) for row in catalogo]
+        return catalogo_dict
 
 on_delete=models.CASCADE
+
 
 # Create your models here.
