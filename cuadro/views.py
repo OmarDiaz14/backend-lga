@@ -20,15 +20,47 @@ class SeccionViewSet(viewsets.ModelViewSet):
     
 
 class SerieViewSet(viewsets.ModelViewSet):
+    lookup_value_regex = r'[^/]+'
     queryset = Series.objects.all()
     permission_classes = [IsAuthenticated]  
     serializer_class = SerieSerializer
     
+    @action(detail=True, methods=['GET'], url_path='get-series-seccion')
+    def get_series_seccion(self, request, pk=None):
+        id_seccion = pk
+        try:
+            series = Series.obtener_series_seccion(id_seccion)
+            serializer = SerieSeccionSerializer(series, many=True)
+            series = serializer.data
+            return Response(series, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+    
 
 class SubSerieViewSet(viewsets.ModelViewSet):
+    lookup_value_regex = r'[^/]+'
     queryset = SubSerie.objects.all()
     permission_classes = [IsAuthenticated]  
     serializer_class = SubSerieSerializer
+    
+    @action(detail=True, methods=['GET'], url_path='get-subseries-seccion')
+    def get_subseries_seccion(self, request, pk=None):
+        id_seccion = pk
+        try:
+            subseries = SubSerie.obtener_subseries_seccion(id_seccion)
+            serializer = SubseriesSeccionSerializer(subseries, many=True)
+            subseries = serializer.data
+            return Response(subseries, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 logger = logging.getLogger(__name__)

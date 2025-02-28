@@ -33,3 +33,10 @@ class FichaTecSerializer(serializers.ModelSerializer):
             if catalogo:
                 validated_data['catalogo'] = catalogo
         return super().create(validated_data)
+
+class FichaTecSeccionSerializer(serializers.ModelSerializer):
+    ficha = serializers.CharField()
+    serie = serializers.CharField()
+    descripcion = serializers.CharField()
+    area_resguardante = serializers.CharField()
+    area_intervienen = serializers.CharField()

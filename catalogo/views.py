@@ -1,9 +1,12 @@
 #from django.shortcuts import render
 
 from rest_framework import viewsets, permissions
-from .serializers import  CatalogoSerializer, DestinoSerializer,TypeSerializer,ValoresSerializer
+from .serializers import  CatalogoSerializer, DestinoSerializer,TypeSerializer,ValoresSerializer, CatalogoSeccionSerializer
 from .models import Catalogo, destino_expe, type_access, valores_docu
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
 
 # Create your views here.
 class DestinoViewSet(viewsets.ModelViewSet):
@@ -24,7 +27,22 @@ class ValorViewSet(viewsets.ModelViewSet):
 
 
 class CatalogoViewSet(viewsets.ModelViewSet):
+    lookup_value_regex = r'[^/]+'
     queryset = Catalogo.objects.all()
     permission_classes = [IsAuthenticated]
     serializer_class = CatalogoSerializer
-# Create your views here.
+
+    @action(detail=True, methods=['GET'], url_path='get-catalogo-seccion')
+    def get_catalogo_seccion(self, request, pk=None):
+        id_seccion = pk
+        try:
+            catalogo = Catalogo.obtener_catalogo_seccion(id_seccion)
+            serializer = CatalogoSeccionSerializer(catalogo, many=True)
+            catalogo = serializer.data
+            return Response(catalogo, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )

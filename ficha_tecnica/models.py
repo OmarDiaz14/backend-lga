@@ -1,4 +1,5 @@
 from django.db import models
+from django.db import connection
 
 
 # Create your models here.
@@ -16,5 +17,12 @@ class FichaTecnica(models.Model):
     serie = models.ForeignKey('cuadro.Series', on_delete=models.CASCADE, null=True, blank=False)
     subserie = models.ForeignKey('cuadro.SubSerie', on_delete=models.CASCADE, null=True, blank=False)
 
-
+    def obtener_ficha_seccion(id_seccion):
+        with connection.cursor() as cursor:
+            cursor.callproc('obtener_ficha_seccion', [id_seccion])
+            fichas = cursor.fetchall()
+            
+        colums = ["ficha","serie","descripcion", "area_resguardante", "area_intervienen"]
+        fichas_dict = [dict(zip(colums, row)) for row in fichas]
+        return fichas_dict
 
