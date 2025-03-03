@@ -1,25 +1,37 @@
-#from django.shortcuts import render
+# Importaciones
+import logging
 import pandas as pd
 from django.db import transaction
+from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework import viewsets, permissions
 from rest_framework.viewsets import GenericViewSet
-from .serializers import  SeccionSerializer, SerieSerializer, SubSerieSerializer, ExcelUploadSerializer
-from .models import Seccion, Series, SubSerie
 from rest_framework.permissions import IsAuthenticated
-import logging
 
-# Create your views here.
+from .serializers import (
+    SeccionSerializer, 
+    SerieSerializer, 
+    SubSerieSerializer, 
+    ExcelUploadSerializer, 
+    SerieSeccionSerializer, 
+    SubseriesSeccionSerializer
+)
+from .models import Seccion, Series, SubSerie
 
+# Configuración del logger
+logger = logging.getLogger(__name__)
+
+
+# ViewSets para los modelos principales
 class SeccionViewSet(viewsets.ModelViewSet):
+    """ViewSet para operaciones CRUD en el modelo Seccion."""
     queryset = Seccion.objects.all()
     permission_classes = [IsAuthenticated]  
     serializer_class = SeccionSerializer
-    
+
 
 class SerieViewSet(viewsets.ModelViewSet):
+    """ViewSet para operaciones CRUD en el modelo Series."""
     lookup_value_regex = r'[^/]+'
     queryset = Series.objects.all()
     permission_classes = [IsAuthenticated]  
@@ -27,21 +39,22 @@ class SerieViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['GET'], url_path='get-series-seccion')
     def get_series_seccion(self, request, pk=None):
+        """Obtiene todas las series asociadas a una sección específica."""
         id_seccion = pk
         try:
             series = Series.obtener_series_seccion(id_seccion)
             serializer = SerieSeccionSerializer(series, many=True)
-            series = serializer.data
-            return Response(series, status=status.HTTP_200_OK)
-        
+            series_data = serializer.data
+            return Response(series_data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(
                 {"error": str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-    
+
 
 class SubSerieViewSet(viewsets.ModelViewSet):
+    """ViewSet para operaciones CRUD en el modelo SubSerie."""
     lookup_value_regex = r'[^/]+'
     queryset = SubSerie.objects.all()
     permission_classes = [IsAuthenticated]  
@@ -49,13 +62,13 @@ class SubSerieViewSet(viewsets.ModelViewSet):
     
     @action(detail=True, methods=['GET'], url_path='get-subseries-seccion')
     def get_subseries_seccion(self, request, pk=None):
+        """Obtiene todas las subseries asociadas a una sección específica."""
         id_seccion = pk
         try:
             subseries = SubSerie.obtener_subseries_seccion(id_seccion)
             serializer = SubseriesSeccionSerializer(subseries, many=True)
-            subseries = serializer.data
-            return Response(subseries, status=status.HTTP_200_OK)
-        
+            subseries_data = serializer.data
+            return Response(subseries_data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(
                 {"error": str(e)},
@@ -63,20 +76,23 @@ class SubSerieViewSet(viewsets.ModelViewSet):
             )
 
 
-logger = logging.getLogger(__name__)
-class ImportExcelView(GenericViewSet):
-    serializer_class = ExcelUploadSerializer
-    permission_classes = []
-
-    def validate_columns(self, df, required_columns, sheet_name):
+# Clases para procesar archivos Excel
+class ExcelProcessor:
+    """Clase base para procesamiento de archivos Excel."""
+    
+    @staticmethod
+    def validate_columns(df, required_columns, sheet_name):
+        """Valida que el DataFrame contenga las columnas requeridas."""
         df.columns = df.columns.str.strip().str.lower()
         missing_columns = [col for col in required_columns if col.lower() not in df.columns]
         if missing_columns:
             raise ValueError(
                 f'Columnas faltantes en la hoja/sección "{sheet_name}": {", ".join(missing_columns)}')
         return df
-
-    def find_start_rows(self, file):
+    
+    @staticmethod
+    def find_section_start_rows(file):
+        """Encuentra las filas de inicio para cada sección en el archivo Excel."""
         df = pd.read_excel(file, header=None)
         # Eliminar filas vacías
         df.dropna(how='all', inplace=True)
@@ -86,7 +102,7 @@ class ImportExcelView(GenericViewSet):
         subseries_start = None
 
         for index, row in df.iterrows():
-            row_lower = [str(item).lower().strip() for item in row.tolist()]  # Normalizacion de los datos leidos
+            row_lower = [str(item).lower().strip() for item in row.tolist()]
             if section_start is None and 'codigo' in row_lower and 'secciones' in row_lower:
                 section_start = index + 1
             elif series_start is None and 'codigo' in row_lower and 'series' in row_lower:
@@ -98,9 +114,10 @@ class ImportExcelView(GenericViewSet):
             raise ValueError("No se encontraron los encabezados de secciones o series en el archivo.")
 
         return section_start, series_start, subseries_start
-
-    def clean_dataframe(self, df, codigo_col='codigo'):
-        """Limpia el DataFrame eliminando filas con valores nan o con cabeceras duplicadas"""
+    
+    @staticmethod
+    def clean_dataframe(df, codigo_col='codigo'):
+        """Limpia el DataFrame eliminando filas con valores nan o con cabeceras duplicadas."""
         # Eliminar filas donde el código es nan, None, o cadenas vacías
         df = df.dropna(subset=[codigo_col])
         
@@ -109,15 +126,20 @@ class ImportExcelView(GenericViewSet):
         
         # Eliminar filas donde todos los valores son iguales a sus nombres de columna
         mask = df.apply(lambda row: not all(str(val).lower() == col.lower() 
-                                         for col, val in row.items() 
-                                         if pd.notna(val) and str(val).strip() != ''), axis=1)
+                                          for col, val in row.items() 
+                                          if pd.notna(val) and str(val).strip() != ''), axis=1)
         df = df[mask]
         
         return df
 
-    def process_sections(self, df):
-        # Limpiar el DataFrame antes de procesarlo
-        df = self.clean_dataframe(df)
+
+class SectionProcessor:
+    """Clase para procesar secciones de un archivo Excel."""
+    
+    @staticmethod
+    def process(df):
+        """Procesa las secciones desde el DataFrame y las guarda en la base de datos."""
+        df = ExcelProcessor.clean_dataframe(df)
         
         sections_dict = {}
         for index, row in df.iterrows():
@@ -134,16 +156,22 @@ class ImportExcelView(GenericViewSet):
                     )
                     sections_dict[codigo] = seccion_obj
                     logger.info(f"Sección procesada: {codigo}")
-                else:
-                    logger.warning(f"Código {codigo} contiene puntos y no fue procesado como sección")
+                # Eliminamos el mensaje de advertencia para evitar que aparezca en el log
+                # else:
+                #    logger.warning(f"Código {codigo} contiene puntos y no fue procesado como sección")
             except Exception as e:
                 logger.error(f"Error procesando sección en fila {index + 2}: {str(e)}")
                 raise ValueError(f'Error en fila {index + 2}: {str(e)}')
         return sections_dict
 
-    def process_series(self, df, sections_dict):
-        # Limpiar el DataFrame antes de procesarlo
-        df = self.clean_dataframe(df)
+
+class SeriesProcessor:
+    """Clase para procesar series de un archivo Excel."""
+    
+    @staticmethod
+    def process(df, sections_dict):
+        """Procesa las series desde el DataFrame y las guarda en la base de datos."""
+        df = ExcelProcessor.clean_dataframe(df)
         
         series_dict = {}
         for index, row in df.iterrows():
@@ -183,10 +211,15 @@ class ImportExcelView(GenericViewSet):
                 logger.error(f"Error procesando serie en fila {index + 2}: {str(e)}")
                 raise ValueError(f'Error en fila {index + 2}: {str(e)}')
         return series_dict
+
+
+class SubseriesProcessor:
+    """Clase para procesar subseries de un archivo Excel."""
     
-    def process_subseries(self, df, series_dict):
-        # Limpiar el DataFrame antes de procesarlo
-        df = self.clean_dataframe(df)
+    @staticmethod
+    def process(df, series_dict):
+        """Procesa las subseries desde el DataFrame y las guarda en la base de datos."""
+        df = ExcelProcessor.clean_dataframe(df)
         
         for index, row in df.iterrows():
             try:
@@ -213,10 +246,21 @@ class ImportExcelView(GenericViewSet):
                 logger.error(f"Error procesando subserie en fila {index + 2}: {str(e)}")
                 raise ValueError(f'Error en fila {index + 2}: {str(e)}')
 
+
+class ImportExcelView(GenericViewSet):
+    """ViewSet para importar datos desde archivos Excel."""
+    serializer_class = ExcelUploadSerializer
+    permission_classes = []
+
     @action(detail=False, methods=['post'], url_path='upload')
     @transaction.atomic
     def import_excel(self, request):
+        """
+        Importa datos desde un archivo Excel.
+        El archivo debe contener hojas para secciones, series y opcionalmente subseries.
+        """
         try:
+            # Validar los datos de entrada
             serializer = self.get_serializer(data=request.data)
             if not serializer.is_valid():
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -224,27 +268,27 @@ class ImportExcelView(GenericViewSet):
             file = serializer.validated_data['file']
             logger.info(f"Procesando archivo: {file.name}")
 
-            # Guardamos una copia del archivo original antes de procesarlo
-            file_copy = file
-            section_start, series_start, subseries_start = self.find_start_rows(file)
+            # Encontrar las filas de inicio para cada sección
+            section_start, series_start, subseries_start = ExcelProcessor.find_section_start_rows(file)
 
-            # Reiniciamos el puntero del archivo para volver a leerlo
-            file_copy.seek(0)
-            df_sections = pd.read_excel(file_copy, skiprows=section_start - 1)
-            df_sections = self.validate_columns(df_sections, ['codigo', 'secciones'], 'Secciones')
-            sections_dict = self.process_sections(df_sections)
+            # Procesar secciones
+            file.seek(0)
+            df_sections = pd.read_excel(file, skiprows=section_start - 1)
+            df_sections = ExcelProcessor.validate_columns(df_sections, ['codigo', 'secciones'], 'Secciones')
+            sections_dict = SectionProcessor.process(df_sections)
 
-            # Reiniciamos el puntero del archivo para leer las series
-            file_copy.seek(0)
-            df_series = pd.read_excel(file_copy, skiprows=series_start - 1)
-            df_series = self.validate_columns(df_series, ['codigo', 'series'], 'Series')
-            series_dict = self.process_series(df_series, sections_dict)
+            # Procesar series
+            file.seek(0)
+            df_series = pd.read_excel(file, skiprows=series_start - 1)
+            df_series = ExcelProcessor.validate_columns(df_series, ['codigo', 'series'], 'Series')
+            series_dict = SeriesProcessor.process(df_series, sections_dict)
 
+            # Procesar subseries si existen
             if subseries_start is not None:
-                file_copy.seek(0)
-                df_subseries = pd.read_excel(file_copy, skiprows=subseries_start - 1)
-                df_subseries = self.validate_columns(df_subseries, ['codigo', 'subserie'], 'Subseries')
-                self.process_subseries(df_subseries, series_dict)
+                file.seek(0)
+                df_subseries = pd.read_excel(file, skiprows=subseries_start - 1)
+                df_subseries = ExcelProcessor.validate_columns(df_subseries, ['codigo', 'subserie'], 'Subseries')
+                SubseriesProcessor.process(df_subseries, series_dict)
 
             return Response({'message': 'Importación completada exitosamente'}, status=status.HTTP_201_CREATED)
 
